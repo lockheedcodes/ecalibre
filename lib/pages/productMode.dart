@@ -80,6 +80,7 @@ class _ProductModePageState extends State<ProductModePage> {
   Widget build(BuildContext context) {
     final productProvider =
         Provider.of<ProductProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Product Sales Summary"),
@@ -90,57 +91,64 @@ class _ProductModePageState extends State<ProductModePage> {
           ? const Center(child: CircularProgressIndicator())
           : allProductSales.isEmpty
               ? const Center(child: Text('No sales data available.'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: allProductSales.length,
-                  itemBuilder: (context, dateIndex) {
-                    final date = allProductSales.keys.elementAt(dateIndex);
-                    final sales = allProductSales[date]!;
-
-                    return Column(
+              : SingleChildScrollView(
+                  scrollDirection: Axis.vertical, // Enables vertical scrolling
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          date,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple.shade700,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        ...sales.entries.map((entry) {
-                          final productId = entry.key;
-                          final weight = entry.value['weight'];
-                          final price = entry.value['price'];
+                      children: allProductSales.entries.map((dateEntry) {
+                        final date = dateEntry.key;
+                        final sales = dateEntry.value;
 
-                          return Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 6,
-                            color: Colors
-                                .primaries[int.parse(productId) %
-                                    Colors.primaries.length]
-                                .shade100,
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            child: ListTile(
-                              title: Text(
-                                'Product ID: $productId  ${productProvider.productName[int.parse(productId) - 1]}',
-                                style: const TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              subtitle: Text(
-                                style: TextStyle(fontSize: 17),
-                                'Weight: ${weight.toStringAsFixed(2)}g\nSales: ₹${price.toStringAsFixed(2)}',
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              date,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepPurple.shade700,
                               ),
                             ),
-                          );
-                        }).toList(),
-                        const SizedBox(height: 20),
-                      ],
-                    );
-                  },
+                            const SizedBox(height: 8),
+                            SingleChildScrollView(
+                              scrollDirection: Axis
+                                  .horizontal, // Enables horizontal scrolling
+                              child: DataTable(
+                                border: TableBorder
+                                    .all(), // Adds borders to table cells
+                                columns: const [
+                                  DataColumn(label: Text('Product ID')),
+                                  DataColumn(label: Text('Product Name')),
+                                  DataColumn(label: Text('Weight (g)')),
+                                  DataColumn(label: Text('Sales (₹)')),
+                                ],
+                                rows: sales.entries.map((entry) {
+                                  final productId = entry.key;
+                                  final weight = entry.value['weight'];
+                                  final price = entry.value['price'];
+                                  final productName = productProvider
+                                      .productName[int.parse(productId) - 1];
+
+                                  return DataRow(cells: [
+                                    DataCell(Text(productId)),
+                                    DataCell(Text(productName)),
+                                    DataCell(
+                                        Text('${weight.toStringAsFixed(2)}')),
+                                    DataCell(
+                                        Text('₹${price.toStringAsFixed(2)}')),
+                                  ]);
+                                }).toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ),
     );
   }
