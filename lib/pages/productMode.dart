@@ -64,8 +64,14 @@ class _ProductModePageState extends State<ProductModePage> {
         result[date] = sales;
       }
 
+      // Sorting dates from today to past dates
+      final sortedEntries = result.entries.toList()
+        ..sort(
+            (a, b) => DateTime.parse(b.key).compareTo(DateTime.parse(a.key)));
+      final sortedMap = Map.fromEntries(sortedEntries);
+
       setState(() {
-        allProductSales = result;
+        allProductSales = sortedMap;
         isLoading = false;
       });
     } else {
@@ -85,16 +91,20 @@ class _ProductModePageState extends State<ProductModePage> {
       appBar: AppBar(
         title: const Text("Product Sales Summary"),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.deepPurple.shade700,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : allProductSales.isEmpty
-              ? const Center(child: Text('No sales data available.'))
+              ? const Center(
+                  child: Text(
+                  'No sales data available.',
+                  style: TextStyle(fontSize: 18, color: Colors.redAccent),
+                ))
               : SingleChildScrollView(
-                  scrollDirection: Axis.vertical, // Enables vertical scrolling
+                  scrollDirection: Axis.vertical,
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: allProductSales.entries.map((dateEntry) {
@@ -107,23 +117,69 @@ class _ProductModePageState extends State<ProductModePage> {
                             Text(
                               date,
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.deepPurple.shade700,
+                                color: Colors.deepPurple.shade900,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 6),
                             SingleChildScrollView(
-                              scrollDirection: Axis
-                                  .horizontal, // Enables horizontal scrolling
+                              scrollDirection: Axis.horizontal,
                               child: DataTable(
-                                border: TableBorder
-                                    .all(), // Adds borders to table cells
-                                columns: const [
-                                  DataColumn(label: Text('Product ID')),
-                                  DataColumn(label: Text('Product Name')),
-                                  DataColumn(label: Text('Weight (g)')),
-                                  DataColumn(label: Text('Sales (₹)')),
+                                border: TableBorder.symmetric(
+                                  inside: BorderSide(
+                                      width: 3, color: Colors.grey.shade300),
+                                  outside: BorderSide(
+                                      width: 2,
+                                      color: Colors.deepPurple.shade400),
+                                ),
+                                columnSpacing: 18, // Reduce column spacing
+                                dataRowMinHeight: 28,
+                                dataRowMaxHeight: 38,
+                                headingRowHeight: 40,
+                                headingRowColor: WidgetStateProperty.all(
+                                    Colors.deepPurple.shade200),
+                                dataRowColor:
+                                    WidgetStateProperty.resolveWith<Color?>(
+                                  (Set<WidgetState> states) {
+                                    return states.contains(WidgetState.selected)
+                                        ? Colors.deepPurple.shade100
+                                        : Colors.grey.shade100;
+                                  },
+                                ),
+                                columns: [
+                                  DataColumn(
+                                      label: Text(
+                                    'Product ID',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.deepPurple.shade900),
+                                  )),
+                                  DataColumn(
+                                      label: Text(
+                                    'Product Name',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.deepPurple.shade900),
+                                  )),
+                                  DataColumn(
+                                      label: Text(
+                                    'Weight (g)',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.deepPurple.shade900),
+                                  )),
+                                  DataColumn(
+                                      label: Text(
+                                    'Sales (₹)',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.deepPurple.shade900),
+                                  )),
                                 ],
                                 rows: sales.entries.map((entry) {
                                   final productId = entry.key;
@@ -133,8 +189,22 @@ class _ProductModePageState extends State<ProductModePage> {
                                       .productName[int.parse(productId) - 1];
 
                                   return DataRow(cells: [
-                                    DataCell(Text(productId)),
-                                    DataCell(Text(productName)),
+                                    DataCell(Center(
+                                      child: Text(productId),
+                                    )),
+                                    DataCell(
+                                      Row(
+                                        children: [
+                                          Icon(Icons.shopping_bag_outlined,
+                                              color: Colors.black, size: 18),
+                                          const SizedBox(width: 6),
+                                          Text(productName,
+                                              style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.grey.shade800)),
+                                        ],
+                                      ),
+                                    ),
                                     DataCell(
                                         Text('${weight.toStringAsFixed(2)}')),
                                     DataCell(
@@ -143,7 +213,7 @@ class _ProductModePageState extends State<ProductModePage> {
                                 }).toList(),
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 15),
                           ],
                         );
                       }).toList(),

@@ -8,6 +8,7 @@ class CalculatorProvider with ChangeNotifier {
   String? _error;
   final dbRef = FirebaseDatabase.instance.ref();
   double _totalSum = 0;
+  double? _inventoryPrice;
 
   List<FlSpot> get chartData => _chartData;
   bool get isLoading => _isLoading;
@@ -19,6 +20,17 @@ class CalculatorProvider with ChangeNotifier {
     _isLoading = false;
     _error = null;
     notifyListeners();
+  }
+
+  void setInventoryPrice(double price) {
+    _inventoryPrice = price;
+    notifyListeners();
+  }
+
+  Future<void> saveInventoryPrice(String date, double price) async {
+    await dbRef
+        .child('calculator_inventory/$date')
+        .set({'inventoryPrice': price});
   }
 
   Future<void> fetchCalculatorValues(String date) async {
@@ -74,6 +86,63 @@ class CalculatorProvider with ChangeNotifier {
       return 0.0;
     } catch (e) {
       return 0.0;
+    }
+  }
+
+  Future<Map<String, double>> getInsightsData(String date) async {
+    try {
+      final snapshot = await dbRef.child('calculator/$date').get();
+      if (!snapshot.exists) {
+        return {
+          'inventoryPrice': 0.0,
+          'totalSales': 0.0,
+          'maxIncome': 0.0,
+          'minIncome': 0.0,
+          'avgIncome': 0.0,
+          'profitPercentage': 0.0,
+        };
+      }
+
+      final data = snapshot.value as Map<dynamic, dynamic>;
+      final values =
+          data.values.whereType<num>().map((e) => e.toDouble()).toList();
+      if (values.isEmpty) {
+        return {
+          'inventoryPrice': _inventoryPrice ?? 0.0,
+          'totalSales': 0.0,
+          'maxIncome': 0.0,
+          'minIncome': 0.0,
+          'avgIncome': 0.0,
+          'profitPercentage': 0.0,
+        };
+      }
+
+      double total = values.reduce((a, b) => a + b);
+      double max = values.reduce((a, b) => a > b ? a : b);
+      double min = values.reduce((a, b) => a < b ? a : b);
+      double avg = total / values.length;
+      double inventoryPrice = _inventoryPrice ?? 0.0;
+      double profitPercentage = inventoryPrice == 0
+          ? 0.0
+          : ((total - inventoryPrice) / inventoryPrice) * 100;
+
+      return {
+        'inventoryPrice': inventoryPrice,
+        'totalSales': total,
+        'maxIncome': max,
+        'minIncome': min,
+        'avgIncome': avg,
+        'profitPercentage': profitPercentage,
+      };
+    } catch (e) {
+      return {
+        'inventoryPrice': 0.0,
+        'totalSales': 0.0,
+        'maxIncome': 0.0,
+        'minIncome': 0.0,
+        'avgIncome': 0.0,
+        'profitPercentage': 0.0,
+      };
     }
   }
 }

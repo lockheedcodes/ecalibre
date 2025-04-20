@@ -4,15 +4,15 @@ class ProductProvider extends ChangeNotifier {
   final List<int> productId = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   final List<String> productName = [
     'Apple',
-    'Oranges',
+    'Orange',
     'Carrot',
     'Beetroot',
     'Raddish',
     'Pumpkin',
     'Beans',
-    'Tomatoes',
-    'Potatoes',
-    'Onions'
+    'Tomatoe',
+    'Potatoe',
+    'Onion'
   ];
   final List<int> productPrice = [350, 200, 70, 60, 30, 50, 100, 40, 60, 40];
 
