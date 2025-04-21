@@ -3,11 +3,9 @@ import 'package:ecalibre/pages/productFile.dart';
 import 'package:ecalibre/pages/statistics.dart';
 import 'package:ecalibre/pages/voicePage.dart';
 import 'package:ecalibre/provider/calculatorProvider.dart';
-import 'package:ecalibre/provider/productProvider.dart';
 import 'package:ecalibre/utils/actions.dart';
 import 'package:ecalibre/utils/addProduct.dart';
 import 'package:ecalibre/utils/calculatorGraph.dart';
-
 import 'package:ecalibre/utils/smallWidgets.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class CalculatorMode extends StatelessWidget {
   CalculatorMode({super.key});
   DateTime now = DateTime.now();
@@ -198,25 +197,6 @@ class CalculatorMode extends StatelessWidget {
     );
   }
 
-  Widget _buildChartSection(String title, Widget chartWidget) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title,
-            style: TextStyle(
-                fontSize: 20,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.bold),
-            textAlign: TextAlign.left),
-        SizedBox(height: 10),
-        Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: chartWidget),
-        SizedBox(height: 20),
-      ],
-    );
-  }
-
   Widget _buildInsightsCard(BuildContext context) {
     final databaseRef = FirebaseDatabase.instance.ref();
 
@@ -331,11 +311,6 @@ class CalculatorMode extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Widget _insightLine(String label, double? value) {
-    return Text('$label: ₹${value?.toStringAsFixed(2)}',
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
   }
 
   void showInventoryDialog(BuildContext context) {
