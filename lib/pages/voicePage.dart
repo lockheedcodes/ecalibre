@@ -1,18 +1,18 @@
-import 'package:ecalibre/provider/productProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:provider/provider.dart';
+import 'package:ecalibre/provider/productProvider.dart';
 
 class VoicePage extends StatefulWidget {
   const VoicePage({Key? key}) : super(key: key);
 
   @override
-  _VoicePage createState() => _VoicePage();
+  _VoicePageState createState() => _VoicePageState();
 }
 
-class _VoicePage extends State<VoicePage> {
+class _VoicePageState extends State<VoicePage> {
   final SpeechToText _speechToText = SpeechToText();
   String _lastWords = '';
   bool _isListening = false;
@@ -26,7 +26,12 @@ class _VoicePage extends State<VoicePage> {
   }
 
   void _initSpeech() async {
-    setState(() {});
+    bool available = await _speechToText.initialize();
+    if (!available) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Speech recognition unavailable')),
+      );
+    }
   }
 
   void _onSpeechResult(SpeechRecognitionResult result) {
@@ -59,31 +64,43 @@ class _VoicePage extends State<VoicePage> {
   }
 
   Future<void> _handleMicPermissionAndListen() async {
-    final status = await Permission.microphone.request();
+    PermissionStatus status = await Permission.microphone.status;
+    if (!status.isGranted) {
+      status = await Permission.microphone.request();
+    }
     if (status.isGranted) {
-      if (!_isListening) {
+      _toggleListening();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Microphone permission denied')),
+      );
+    }
+  }
+
+  void _toggleListening() async {
+    if (!_isListening) {
+      bool available = await _speechToText.initialize();
+      if (available) {
         await _speechToText.listen(
           onResult: _onSpeechResult,
           listenOptions: SpeechListenOptions(
             listenMode: ListenMode.dictation,
             partialResults: true,
           ),
-          listenFor: const Duration(hours: 1),
-          pauseFor: const Duration(seconds: 30),
         );
         setState(() {
           _isListening = true;
         });
       } else {
-        await _speechToText.stop();
-        setState(() {
-          _isListening = false;
-        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Speech recognition unavailable')),
+        );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Microphone permission denied')),
-      );
+      await _speechToText.stop();
+      setState(() {
+        _isListening = false;
+      });
     }
   }
 
@@ -94,13 +111,11 @@ class _VoicePage extends State<VoicePage> {
       body: Column(
         children: [
           const SizedBox(height: 16),
-          Text('Recognized words:', style: const TextStyle(fontSize: 18)),
+          const Text('Recognized words:', style: TextStyle(fontSize: 18)),
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Text(
-              _lastWords,
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
-            ),
+            child: Text(_lastWords,
+                style: const TextStyle(fontSize: 16, color: Colors.grey)),
           ),
           const Divider(),
           Expanded(
