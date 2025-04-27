@@ -49,13 +49,19 @@ class _ProductModePageState extends State<ProductModePage> {
         final Map<String, dynamic> sales = {};
 
         for (var entry in productMap.entries) {
-          final productId = entry.key.toString();
-          final weight = double.tryParse(entry.value.toString()) ?? 0.0;
-          final pricePer1000 =
-              productProvider.getPrice(int.tryParse(productId) ?? 0);
-          final convertedPrice = (pricePer1000 / 1000) * weight;
+          final productIdStr = entry.key.toString();
+          final int parsedId = int.tryParse(productIdStr) ?? -1;
 
-          sales[productId] = {
+          if (parsedId == -1) continue; // invalid ID
+
+          final double weight = double.tryParse(entry.value.toString()) ?? 0.0;
+          final double pricePer1000 = productProvider.getPrice(parsedId);
+
+          if (pricePer1000 == 0.0) continue; // skip unknown products
+
+          final double convertedPrice = (pricePer1000 / 1000) * weight;
+
+          sales[productIdStr] = {
             'weight': weight,
             'price': convertedPrice,
           };
@@ -64,7 +70,6 @@ class _ProductModePageState extends State<ProductModePage> {
         result[date] = sales;
       }
 
-      // Sorting dates from today to past dates
       final sortedEntries = result.entries.toList()
         ..sort(
             (a, b) => DateTime.parse(b.key).compareTo(DateTime.parse(a.key)));
@@ -98,9 +103,10 @@ class _ProductModePageState extends State<ProductModePage> {
           : allProductSales.isEmpty
               ? const Center(
                   child: Text(
-                  'No sales data available.',
-                  style: TextStyle(fontSize: 18, color: Colors.redAccent),
-                ))
+                    'No sales data available.',
+                    style: TextStyle(fontSize: 18, color: Colors.redAccent),
+                  ),
+                )
               : SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: Container(
@@ -133,7 +139,7 @@ class _ProductModePageState extends State<ProductModePage> {
                                       width: 2,
                                       color: Colors.deepPurple.shade400),
                                 ),
-                                columnSpacing: 18, // Reduce column spacing
+                                columnSpacing: 18,
                                 dataRowMinHeight: 28,
                                 dataRowMaxHeight: 38,
                                 headingRowHeight: 40,
@@ -149,49 +155,51 @@ class _ProductModePageState extends State<ProductModePage> {
                                 ),
                                 columns: [
                                   DataColumn(
-                                      label: Text(
-                                    'Product ID',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.deepPurple.shade900),
-                                  )),
+                                      label: Text('Product ID',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color:
+                                                  Colors.deepPurple.shade900))),
                                   DataColumn(
-                                      label: Text(
-                                    'Product Name',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.deepPurple.shade900),
-                                  )),
+                                      label: Text('Product Name',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color:
+                                                  Colors.deepPurple.shade900))),
                                   DataColumn(
-                                      label: Text(
-                                    'Weight (g)',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.deepPurple.shade900),
-                                  )),
+                                      label: Text('Weight (g)',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color:
+                                                  Colors.deepPurple.shade900))),
                                   DataColumn(
-                                      label: Text(
-                                    'Sales (₹)',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.deepPurple.shade900),
-                                  )),
+                                      label: Text('Sales (₹)',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color:
+                                                  Colors.deepPurple.shade900))),
                                 ],
                                 rows: sales.entries.map((entry) {
                                   final productId = entry.key;
                                   final weight = entry.value['weight'];
                                   final price = entry.value['price'];
-                                  final productName = productProvider
-                                      .productName[int.parse(productId) - 1];
+
+                                  final int parsedId =
+                                      int.tryParse(productId) ?? -1;
+                                  final String productName = (parsedId != -1 &&
+                                          parsedId <=
+                                              productProvider
+                                                  .productName.length)
+                                      ? productProvider
+                                          .productName[parsedId - 1]
+                                      : 'Unknown';
 
                                   return DataRow(cells: [
-                                    DataCell(Center(
-                                      child: Text(productId),
-                                    )),
+                                    DataCell(Center(child: Text(productId))),
                                     DataCell(
                                       Row(
                                         children: [

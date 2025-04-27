@@ -4,15 +4,15 @@ class ProductProvider extends ChangeNotifier {
   final List<int> productId = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   final List<String> productName = [
     'Apple',
-    'Orange',
-    'Carrot',
-    'Beetroot',
-    'Raddish',
-    'Pumpkin',
     'Beans',
-    'Tomatoe',
-    'Potatoe',
-    'Onion'
+    'Beetroot',
+    'Carrot',
+    'Onion',
+    'Orange',
+    'Potato',
+    'Pumpkin',
+    'Radish',
+    'Tomato'
   ];
   final List<int> productPrice = [350, 200, 70, 60, 30, 50, 100, 40, 60, 40];
 
@@ -39,8 +39,12 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  double getPrice(int productId) {
-    return (productPrice[productId - 1]).toDouble();
+  double getPrice(int id) {
+    final index = productId.indexOf(id);
+    if (index != -1) {
+      return productPrice[index].toDouble();
+    }
+    return 0.0; // Safe fallback if ID not found
   }
 }
 
