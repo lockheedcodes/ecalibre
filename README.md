@@ -20,27 +20,26 @@ The app provides insightful **graphs** and allows users to view historical sales
 ---
 
 ## Screenshots 🖼  
-### Home Screen  
-![Home Screen](assets/screenshots/home.jpeg)  
+                                                  
+<p align="center">
+   <img src="assets/screenshots/home.jpeg" width="350" height="750"  style="margin-right: 20px;">
+   <img src="assets/screenshots/product.jpeg" width="350" height="750">
+</p>
 
-### Product Mode
-![Products Sold](assets/screenshots/product.jpeg)
+<p align="center">
+   <img src="assets/screenshots/product.jpeg" width="350" height="750"  style="margin-right: 20px;">
+   <img src="assets/screenshots/history.jpeg" width="350" height="750">
+</p>
 
-### History   
-![History till date](assets/screenshots/history.jpeg)
+<p align="center">
+   <img src="assets/screenshots/voice.jpeg" width="350" height="750"  style="margin-right: 80px;">
+   <img src="assets/screenshots/insights.jpeg" width="350" height="750">
+</p>
 
-### VoiceBill
-![Voice Bill](assets/screenshots/voice.jpeg)
-
-### Insight on the day 
-![Insights](assets/screenshots/insights.jpeg)
-
-### Inventory Page 
-![Total available items](assets/screenshots/products.jpeg)
-
-### Total Stats  
-![Statistics for both calculator and Product Mode](assets/screenshots/totalstats.jpeg)
-
+<p align="center">
+   <img src="assets/screenshots/products.jpeg" width="350" height="750"  style="margin-right: 20px;">
+   <img src="assets/screenshots/totalstats.jpeg" width="350" height="750">
+</p>
 
 ---
 
